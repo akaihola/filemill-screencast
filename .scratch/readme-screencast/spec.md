@@ -12,18 +12,17 @@ Per-feature clips, keyboard demos and other surfaces (social preview, Pages) are
 
 ## Artifact
 
-- Animated GIF encoded with gifski. See [ADR 0002](../../docs/adr/0002-the-screencast-is-a-gif.md).
+- Animated GIF encoded with ffmpeg: one palette per capture, no dithering. See [ADR 0002](../../docs/adr/0002-the-screencast-is-a-gif.md).
 - Two variants, light and dark, from two captures with Playwright `color_scheme` forced.
-- Committed to this repo with stable file names, linked from the Filemill README by raw URL on `main`. See [ADR 0003](../../docs/adr/0003-gifs-live-here-linked-by-raw-url.md). Theme switching uses fragments, not `<picture>`, which drops the GIF pause button:
+- Committed to this repo with stable file names, linked from the Filemill README by raw URL on `main`. See [ADR 0003](../../docs/adr/0003-gifs-live-here-linked-by-raw-url.md). Theme switching uses fragments, not `<picture>`, which drops the GIF pause button. Keep both images on one line; on separate lines GitHub puts a `<br>` between them:
 
   ```md
-  ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-light.gif#gh-light-mode-only)
-  ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-dark.gif#gh-dark-mode-only)
+  ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-light.gif#gh-light-mode-only) ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-dark.gif#gh-dark-mode-only)
   ```
 
 - Length: 35 s at most. If a scene does not fit, cut it, do not squeeze it.
 - Budget: 3 MB at most per variant.
-- Viewport: as wide as the README content column (about 830 CSS px, to be measured) and taller than 600 px (Filemill switches to its phone layout at landscape heights of 600 px or less, `ui/core/styles.css:58-62`). DPR 1, so text shows 1:1. Use DPR 2 only if it stays within budget.
+- Viewport: 838 × 420 CSS px. 838 px is the README content column on desktop GitHub, at every viewport from 1280 to 2560 px wide (582 px at 1024). At 640 px tall the bottom third of every column and preview was empty. At landscape heights of 600 px or less Filemill sets `--column-ratio: 0.25` (`ui/core/styles.css:58-62`), so folder columns are 209 px wide instead of 240; nothing else changes. DPR 1, so text shows 1:1. DPR 2 is out: CDP screencast delivers 1× frames, and DPR 1 already fills the budget.
 - No browser frame. Bare viewport.
 - Loops forever. After the last scene's hold, it cuts back to the opening frame.
 - The opening frame must explain Filemill on its own: a viewer with autoplay off sees only that frame.
@@ -35,7 +34,7 @@ All text the viewer reads is fixture content. No captions or overlays. See [ADR 
 - Folder and file names state the action that reaches them. Preview contents state the benefit.
 - Preview narration is an h1 or h2 of 8 words or fewer. Markdown body text renders at 12 px, headings at 24/18 px.
 - No dot in any name except before the real extension. Filemill shows everything after the last dot as a grey "extension" (`ui/core/model/state.js:77-80`).
-- Names fit a 240 px column: about 33 characters for a folder, 36 for a file (measured with DejaVu; Inter is narrower).
+- Names fit a 209 px column: 28 characters at most. In Inter, "Each section has its own link" (29) just fits and "Long documents stay navigable" (29) truncates.
 - The root holds only folders, numbered with single digits. The server sorts folders first, then by lower-cased string, so `10` sorts before `2` (`server/src/filemill/vfs.py:19-21`). Archives and `.db` files sort with folders; `.md` and `.json` sort with files.
 - Opening a folder auto-selects its `README.md` (not at the root, `ui/core/model/selection.js:2-10`), so a tap on a folder shows its narration at once.
 - SQLite databases and tables preview nothing. Narration there is in table names, row labels (a text primary key is the label, `server/src/filemill/providers/sqlite.py:174-242`) and field values.
@@ -55,7 +54,7 @@ Filemill tour/
     Guide.md               # Guide (single title: its h2s form the column)
                            ## Headings open as columns
                            ## Each section has its own link
-                           ## Long documents stay navigable
+                           ## Long files stay navigable
   3 Open a JSON file/
     settings.json          {"Every key opens a column": {"all the way down": "No JSON viewer needed"}}
   4 Open a SQLite database/
@@ -78,7 +77,7 @@ Scenes:
 5. **Zip** (about 4 s). Archive members open as columns; the Markdown member previews rendered (needs Filemill [86]).
 6. **Try it** (about 3 s, then hold 2 s). The README auto-selects.
 
-At an 830 px viewport only two full columns fit beside the preview, so the root column is folded at the start of most scenes. Returning to the root (root-spine tap or a drag right) is part of each scene's time.
+At an 838 px viewport only two full columns fit beside the preview, so the root column is folded at the start of most scenes. Returning to the root (root-spine tap or a drag right) is part of each scene's time.
 
 ## Capture
 
@@ -87,7 +86,8 @@ At an 830 px viewport only two full columns fit beside the preview, so the root 
 - The fixture is generated by a script in this repo into a fresh temporary directory per capture. Do not import Filemill's test fixture builders. Ideas can come from `ui_root` in Filemill's `server/tests/test_browser_new_ui.py:55-162`.
 - Deterministic output: fixed mtimes, locale `en-US`, timezone `UTC` (the preview header shows the modified date, `ui/core/render.js:716`), theme forced with `color_scheme`, default sort (a non-default sort persists in local storage).
 - Fonts: Inter for UI and JetBrains Mono for code, the only freely licensed fonts in Filemill's stacks (`ui/core/styles.css:13-16`). Noto Color Emoji covers the 🗃️ 📁 📄 glyphs.
-- Input: one touch indicator for every action, driven by real touch events. A tap pulses it; a drag moves it along the drag. Taps stay under 500 ms, because a long press opens the context menu (`ui/core/render.js:55`). Touch emulation changes no Filemill CSS. Horizontal scroll of `#finder` is the fold dial (`ui/core/styles.css:355-376`).
+- Frames: CDP `Page.startScreencast` PNGs, resampled by timestamp onto a fixed frame-rate grid before encoding. It sends frames only when something changes, so holds cost nothing.
+- Input: one touch indicator for every action, driven by real touch events: CDP `Input.dispatchTouchEvent`. A tap pulses it; a drag moves it along the drag. Drags scroll 1:1 after about 15 px of slop and never fling, so unfolding all the way from the opening frame (`scrollLeft` 990 of 1250 px) takes two swipes until Filemill [81]. Taps stay under 500 ms, because a long press opens the context menu (`ui/core/render.js:55`). Touch emulation changes no Filemill CSS. Horizontal scroll of `#finder` is the fold dial (`ui/core/styles.css:355-376`).
 
 ## Publishing
 
@@ -99,21 +99,30 @@ At an 830 px viewport only two full columns fit beside the preview, so the root 
 - Filemill [83]: hide the visible "Search file contents" label. It shows in every frame.
 - Filemill [81]: horizontal-scrolling fold stops. Scene 1 shows this gesture.
 - Filemill [86]: render Markdown inside archives. Scene 5 needs it.
+- Filemill [88]: status bar hints wrap and get clipped at 838 px. They show in every frame.
+- Filemill [89]: Markdown previews show two Raw buttons. Several scenes show the toolbar.
 - Filemill [87]: push `main`, make CI green, get <https://akaihola.github.io/filemill/> live. Scene 6 points there, and the pinned sha must exist on GitHub. Do not publish before the URL works.
 - nixos-config `docs/backlog/install-ui-fonts-on-gogo.md`: Inter and JetBrains Mono on gogo.
 
 Filemill [84] and [85] (JSON and images inside archives) do not show on screen and do not block.
 
-## Open questions for the prototype
+## Prototype answers
 
-1. Does a `.gif` with a `#gh-dark-mode-only` fragment on a raw URL still get GitHub's pause button (`data-animated-image`)? If not, fall back to light only.
-2. How wide is the README content column on a desktop repo page?
-3. GIF size per variant at DPR 1 and DPR 2, and at which frame rate.
-4. Are 12 px names, JSON scalar values and SQLite field values readable at 1:1?
-5. Which frame source gives clean frames: Playwright `record_video` (low-bitrate VP8), CDP `Page.startScreencast`, or per-frame screenshots?
-6. How to synthesize the touch drag (for example CDP `Input.dispatchTouchEvent` or `Input.synthesizeScrollGesture`) and draw the touch indicator.
-7. Does `uvx --from git+…#subdirectory=server` install and run Filemill, `ui/` symlink included?
-8. Is a `README.md` inside a folder of a zip archive auto-selected?
+Answered on 2026-10-09 by the prototype on the throwaway branch
+`prototype/readme-screencast` (`prototype/README.md`), against Filemill `7ff1fd2`.
+
+1. Pause button with a theme fragment: yes. GitHub's Markdown API gives fragment URLs `data-animated-image`.
+2. README column: 838 px.
+3. Size: the 36 s storyline at 838 × 420, DPR 1, ffmpeg, is 2.40 MB at 10 fps, 2.75 MB at 12 fps and 3.2 MB at 15 fps (light and dark within 0.1 MB). At 838 × 640 it was 2.82, 3.21 and 3.82 MB.
+4. 12 px names, JSON scalar values and SQLite field values are readable at 1:1.
+5. Frame source: CDP screencast. `record_video` blurs small text.
+6. Touch: `Input.dispatchTouchEvent`; `Input.synthesizeScrollGesture` does nothing in headless Chromium. The indicator follows the page's own touch listeners.
+7. `uvx --from git+…#subdirectory=server` installs and runs Filemill.
+8. A `README.md` in a zip folder auto-selects after a tap. A folder opened by URL does not auto-select, so the capture taps.
+
+Still open: scene 1 took 12.5 s, not 7 s (two swipes in, two out, the spine
+tap). Dropping the fold-back brings the storyline to about 31 s. Frame rate:
+10 or 12 fps both fit the budget.
 
 ## Environment notes
 
@@ -121,6 +130,7 @@ Filemill [84] and [85] (JSON and images inside archives) do not show on screen a
 - Chromium under Playwright drops the credentials in `$HTTPS_PROXY`, so external requests return 407. Pass `server`, `username` and `password` as separate keys of `launch(proxy=...)`, and set `proxy["bypass"]` from `$NO_PROXY`, or loopback servers answer 502.
 - The Bash sandbox blocks loopback connections between commands. Run the Filemill server and Playwright in the same command.
 - `$TMPDIR` is shared across sessions. Prefix scratch files with `screencast-`.
-- ffmpeg 9 is installed. gifski is not; `nix-shell -p gifski` needs the sandbox disabled (the Nix daemon socket is blocked).
+- ffmpeg 9 is installed; it is the only encoder needed.
+- In the agent sandbox `uvx` cannot write `~/.local/share/uv/tools`; set `UV_TOOL_DIR` under `$TMPDIR`.
 - Run renders and encodes with the harness's background mode, not a foreground timeout.
 - Never record `filemill.service` (port 8334, Tailscale :8445): it serves the agent's whole home directory. The demo instance (`filemill-public.service`, `~/menu-public`) is not usable either: it symlinks the live Filemill working tree.
