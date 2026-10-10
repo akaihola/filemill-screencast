@@ -22,6 +22,7 @@ Per-feature clips, keyboard demos and other surfaces (social preview, Pages) are
 
 - Length: 35 s at most. If a scene does not fit, cut it, do not squeeze it.
 - Budget: 3 MB at most per variant.
+- Frame rate: 12 fps. The 30.7 s storyline is 2.11 MB at 12 fps; 15 fps came to 3.2 MB on the first, 36 s storyline.
 - Viewport: 838 × 420 CSS px. 838 px is the README content column on desktop GitHub, at every viewport from 1280 to 2560 px wide (582 px at 1024). At 640 px tall the bottom third of every column and preview was empty. At landscape heights of 600 px or less Filemill sets `--column-ratio: 0.25` (`ui/core/styles.css:58-62`), so folder columns are 209 px wide instead of 240; nothing else changes. DPR 1, so text shows 1:1. DPR 2 is out: CDP screencast delivers 1× frames, and DPR 1 already fills the budget.
 - No browser frame. Bare viewport.
 - Loops forever. After the last scene's hold, it cuts back to the opening frame.
@@ -126,7 +127,7 @@ steps that overran their timing. It keeps the fold-back with 450 ms swipes and
 shorter holds, and now takes 7.3 s. The whole storyline takes 30.7 s: 1.86 MB at
 10 fps, 2.11 MB at 12 fps (838 × 420, light).
 
-Still open: 10 or 12 fps.
+Frame rate: 12 fps.
 
 ## Environment notes
 
