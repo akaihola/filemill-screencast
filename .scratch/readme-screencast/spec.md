@@ -109,20 +109,24 @@ Filemill [84] and [85] (JSON and images inside archives) do not show on screen a
 ## Prototype answers
 
 Answered on 2026-10-09 by the prototype on the throwaway branch
-`prototype/readme-screencast` (`prototype/README.md`), against Filemill `7ff1fd2`.
+`prototype/readme-screencast` (`prototype/README.md`), kept only in the clone on gogo,
+against Filemill `7ff1fd2`.
 
 1. Pause button with a theme fragment: yes. GitHub's Markdown API gives fragment URLs `data-animated-image`.
 2. README column: 838 px.
-3. Size: the 36 s storyline at 838 × 420, DPR 1, ffmpeg, is 2.40 MB at 10 fps, 2.75 MB at 12 fps and 3.2 MB at 15 fps (light and dark within 0.1 MB). At 838 × 640 it was 2.82, 3.21 and 3.82 MB.
+3. Size: the first 36 s storyline at 838 × 420, DPR 1, ffmpeg, was 2.40 MB at 10 fps, 2.75 MB at 12 fps and 3.2 MB at 15 fps (light and dark within 0.1 MB). At 838 × 640 it was 2.82, 3.21 and 3.82 MB.
 4. 12 px names, JSON scalar values and SQLite field values are readable at 1:1.
 5. Frame source: CDP screencast. `record_video` blurs small text.
 6. Touch: `Input.dispatchTouchEvent`; `Input.synthesizeScrollGesture` does nothing in headless Chromium. The indicator follows the page's own touch listeners.
 7. `uvx --from git+…#subdirectory=server` installs and runs Filemill.
 8. A `README.md` in a zip folder auto-selects after a tap. A folder opened by URL does not auto-select, so the capture taps.
 
-Still open: scene 1 took 12.5 s, not 7 s (two swipes in, two out, the spine
-tap). Dropping the fold-back brings the storyline to about 31 s. Frame rate:
-10 or 12 fps both fit the budget.
+Scene 1 first took 12.5 s: two swipes in, two out, the spine tap, and drag
+steps that overran their timing. It keeps the fold-back with 450 ms swipes and
+shorter holds, and now takes 7.3 s. The whole storyline takes 30.7 s: 1.86 MB at
+10 fps, 2.11 MB at 12 fps (838 × 420, light).
+
+Still open: 10 or 12 fps.
 
 ## Environment notes
 
