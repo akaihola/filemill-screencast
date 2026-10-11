@@ -14,10 +14,10 @@ Per-feature clips, keyboard demos and other surfaces (social preview, Pages) are
 
 - Animated GIF encoded with ffmpeg: one palette per capture, no dithering. See [ADR 0002](../../docs/adr/0002-the-screencast-is-a-gif.md).
 - Two variants, light and dark, from two captures with Playwright `color_scheme` forced.
-- Committed to this repo with stable file names, linked from the Filemill README by raw URL on `main`. See [ADR 0003](../../docs/adr/0003-gifs-live-here-linked-by-raw-url.md). Theme switching uses fragments, not `<picture>`, which drops the GIF pause button. Keep both images on one line; on separate lines GitHub puts a `<br>` between them:
+- Committed to this repo as `screencast/filemill-light.gif` and `screencast/filemill-dark.gif`, linked from the Filemill README by raw URL on `main`. See [ADR 0003](../../docs/adr/0003-gifs-live-here-linked-by-raw-url.md). Theme switching uses fragments, not `<picture>`, which drops the GIF pause button. Keep both images on one line; on separate lines GitHub puts a `<br>` between them:
 
   ```md
-  ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-light.gif#gh-light-mode-only) ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/<path>/filemill-dark.gif#gh-dark-mode-only)
+  ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/screencast/filemill-light.gif#gh-light-mode-only) ![<alt text>](https://raw.githubusercontent.com/akaihola/filemill-screencast/main/screencast/filemill-dark.gif#gh-dark-mode-only)
   ```
 
 - Length: 35 s at most. If a scene does not fit, cut it, do not squeeze it.
