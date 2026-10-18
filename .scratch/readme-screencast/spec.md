@@ -1,6 +1,6 @@
 # README screencast
 
-Decisions from the 2026-10-09 grilling session. Vocabulary: [CONTEXT.md](../../CONTEXT.md).
+Decisions from the 2026-10-09 grilling session. Vocabulary: [GLOSSARY.md](../../GLOSSARY.md).
 Decisions with a recorded rationale: [docs/adr/](../../docs/adr/).
 
 ## Goal
